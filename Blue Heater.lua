@@ -291,7 +291,7 @@ game:GetService("RunService").Stepped:Connect(function()
                 while true do 
                     task.wait()
                     GoToMob(v)
-                    if Settings.FarmSettings.AutoFarmToggle == false or v == nil or v.Humanoid.Health == 0 or GoToMob(v) == nil then
+                    if Settings.FarmSettings.AutoFarmToggle == false or v == nil or v.Humanoid.Health == 0 then
                         break
                     end
                 end
