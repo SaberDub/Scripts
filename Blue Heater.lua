@@ -18,8 +18,9 @@ local Settings = {
         NPCs = {},
         SelectedNPCs = {},
         },
+    Stam = true,
     CFrames = {
-        Spawn = CFrame.new(311, 1495, 425)
+        Spawn = CFrame.new(975, 1600, -160)
     }
 }
 
@@ -37,37 +38,21 @@ local function KillAura()
     while getgenv().KillAura == true do
         task.wait()
         for i, v in pairs(game.Workspace.SpawnedMobs:GetChildren()) do
-        local RootPart = v:FindFirstChild("HumanoidRootPart", true) -- the true means it searches the descendands not just the chuldren
-        if RootPart ~= nil then
-            local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
-            if distance <= 20 then
-                local args = {
-                    [1] = v
-                }
-                game:GetService("ReplicatedStorage"):WaitForChild("CharacterEvents"):WaitForChild("DamageReached"):FireServer(unpack(args))
+            local RootPart = v:FindFirstChild("HumanoidRootPart", true)
+            if RootPart ~= nil then
+                local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+                if distance <= 20 then
+                    local args = {
+                        [1] = v
+                    }
+                    game:GetService("ReplicatedStorage"):WaitForChild("CharacterEvents"):WaitForChild("DamageReached"):FireServer(unpack(args))
+                end
             end
         end
     end
-end
 end
 
-local function MobFarm()
-    while getgenv().MobFarm == true do
-        task.wait()
-    for i, v in pairs(game.Workspace.SpawnedMobs:GetChildren()) do
-    local RootPart = v:FindFirstChild("HumanoidRootPart", true) -- the true means it searches the descendands not just the chuldren
-    if RootPart ~= nil then
-        local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
-        if distance <= 20 then
-            local args = {
-                [1] = v
-            }
-             game:GetService("ReplicatedStorage"):WaitForChild("CharacterEvents"):WaitForChild("DamageReached"):FireServer(unpack(args))
-            end
-        end
-    end
-end
-end
+
 
 local function GetMobs()
     for i, v in pairs(game.Workspace.SpawnedMobs:GetChildren()) do
@@ -79,20 +64,62 @@ local function GetMobs()
     end
 end
 
-local function GoToMob(instance)
-    if instance == nil then
+local function Stam()
+    if Settings.Stam ~= true then
         return
     end
+
+    getrenv()._G.Action = ""
+    game.Players.LocalPlayer.Character.Stats.Stamina.Current.Value = 100
+end
+
+local function GoToMob(instance)
+    if instance == nil then
+        return nil
+    end
+    
+    local Char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait(0)
+
+    local RootPart = instance:FindFirstChild("HumanoidRootPart", true)
+    if RootPart == nil or RootPart.CFrame.Y < 1000 then
+        return nil
+    end
+
     if Settings.FarmSettings.Method == "Above" then
-        game.Players.LocalPlayer.Character:PivotTo(instance:GetPivot() * CFrame.new(0, Settings.FarmSettings.Distance, 0) * CFrame.Angles(math.rad(-90),0,0))
+        Char:PivotTo(instance:GetPivot() * CFrame.new(0, Settings.FarmSettings.Distance, 0) * CFrame.Angles(math.rad(-90),0,0))
     elseif Settings.FarmSettings.Method == "Behind" then
-        game.Players.LocalPlayer.Character:PivotTo(instance:GetPivot() * CFrame.new(0, 0, Settings.FarmSettings.Distance))
+        Char:PivotTo(instance:GetPivot() * CFrame.new(0, 0, Settings.FarmSettings.Distance))
     elseif Settings.FarmSettings.Method == "Below" then
-        game.Players.LocalPlayer.Character:PivotTo(instance:GetPivot() * CFrame.new(0, -Settings.FarmSettings.Distance, 0))
+        Char:PivotTo(instance:GetPivot() * CFrame.new(0, -Settings.FarmSettings.Distance, 0))
     end
 end
 
-function toClipboard(String)
+
+local function Stam()
+    if Settings.Stam ~= true then
+        return
+    end
+
+    getrenv()._G.Action = ""
+    game.Players.LocalPlayer.Character.Stats.Stamina.Current.Value = 100
+end
+
+local function ChestFarm()
+    while ChestFarm do
+        task.wait()
+    for i, v in pairs(game.Workspace:GetChildren()) do
+            if string.find(v.Name, "Chest") then
+                local Proxy = v:FindFirstChildWhichIsA("ProximityPrompt", true)
+                if Proxy then
+                    game.Players.LocalPlayer.Character:PivotTo(v:GetPivot())
+                    fireproximityprompt(Proxy)
+                end
+            end
+        end
+    end
+end
+
+local function toClipboard(String)
 	local clipBoard = setclipboard or toclipboard or set_clipboard or (Clipboard and Clipboard.set)
 	if clipBoard then
 		clipBoard(String)
@@ -115,8 +142,6 @@ Autofarm:AddToggle('Farming Toggle', {
 
     Callback = function(Value)
         Settings.FarmSettings.AutoFarmToggle = Value
-        getgenv().MobFarm = Value
-        MobFarm()
     end
 })
 
@@ -200,6 +225,28 @@ Toggles:AddToggle('KillAura', {
     end
 })
 
+Toggles:AddToggle('InfStam', {
+    Text = 'Infinite Stamina',
+    Default = false,
+    Tooltip = 'Toggle Infinite Stamina',
+
+    Callback = function(Value)
+    Settings.Stam = Value
+    Stam()
+    end
+})
+
+Toggles:AddToggle('Chest Auto', {
+    Text = 'Chest Auto Farm',
+    Default = false,
+    Tooltip = 'Toggle Kill Aura',
+
+    Callback = function(Value)
+        getgenv().ChestFarm = Value
+        ChestFarm()
+    end
+})
+
 local DiscordGroup = Tabs.Main:AddRightGroupbox('Discord')
 
 local MyButton = DiscordGroup:AddButton({
@@ -237,13 +284,14 @@ ThemeManager:ApplyToTab(Tabs['UI Settings'])
 SaveManager:LoadAutoloadConfig()
 
 game:GetService("RunService").Stepped:Connect(function()
+    Stam()
     if Settings.FarmSettings.AutoFarmToggle == true then
         for _, v in pairs(game.Workspace.SpawnedMobs:GetChildren()) do
-            if Settings.FarmSettings.SelectedNPCs[v.Name] ~= nil and Settings.FarmSettings.AutoFarmToggle ~= false and v.Humanoid.Health ~= 0 then
-                while true do
-                    task.wait()
+            if Settings.FarmSettings.SelectedNPCs[v.Name] == true and Settings.FarmSettings.AutoFarmToggle ~= false and v.Humanoid.Health ~= 0 then
+                while true do task.wait()
                     GoToMob(v)
-                    if Settings.FarmSettings.AutoFarmToggle == false or v == nil or v.Humanoid.Health == 0 then
+
+                    if Settings.FarmSettings.AutoFarmToggle == false or v == nil or v.Humanoid.Health == 0 or GoToMob(v) == nil then
                         break
                     end
                 end
