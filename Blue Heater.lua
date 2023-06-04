@@ -38,8 +38,8 @@ local function KillAura()
     while getgenv().KillAura == true do
         task.wait()
         for i, v in pairs(game.Workspace.SpawnedMobs:GetChildren()) do
-            local RootPart = v:FindFirstChild("HumanoidRootPart", true)
-            if RootPart ~= nil then
+            local RootPart1 = v:FindFirstChild("HumanoidRootPart", true)
+            if RootPart1 ~= nil then
                 local distance = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
                 if distance <= 20 then
                     local args = {
@@ -80,8 +80,8 @@ local function GoToMob(instance)
     
     local Char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait(0)
 
-    local RootPart = instance:FindFirstChild("HumanoidRootPart", true)
-    if RootPart == nil or RootPart.CFrame.Y < 1000 then
+    local RootPart1 = instance:FindFirstChild("HumanoidRootPart", true)
+    if RootPart1 == nil or RootPart1.CFrame.Y < 1000 then
         return nil
     end
 
@@ -287,10 +287,10 @@ game:GetService("RunService").Stepped:Connect(function()
     Stam()
     if Settings.FarmSettings.AutoFarmToggle == true then
         for _, v in pairs(game.Workspace.SpawnedMobs:GetChildren()) do
-            if Settings.FarmSettings.SelectedNPCs[v.Name] == true and Settings.FarmSettings.AutoFarmToggle ~= false and v.Humanoid.Health ~= 0 then
-                while true do task.wait()
+            if Settings.FarmSettings.SelectedNPCs[v.Name] == true and Settings.FarmSettings.AutoFarmToggle ~= false then
+                while true do 
+                    task.wait()
                     GoToMob(v)
-
                     if Settings.FarmSettings.AutoFarmToggle == false or v == nil or v.Humanoid.Health == 0 or GoToMob(v) == nil then
                         break
                     end
