@@ -105,7 +105,7 @@ local function Stam()
 end
 
 local function ChestFarm()
-    while ChestFarm do
+    while getgenv().ChestFarm == true do
         task.wait()
     for i, v in pairs(game.Workspace:GetChildren()) do
             if string.find(v.Name, "Chest") then
