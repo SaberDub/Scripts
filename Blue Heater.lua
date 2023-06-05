@@ -3,6 +3,31 @@ local repo = 'https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main
 local Library = loadstring(game:HttpGet(repo .. 'Library.lua'))()
 local ThemeManager = loadstring(game:HttpGet(repo .. 'addons/ThemeManager.lua'))()
 local SaveManager = loadstring(game:HttpGet(repo .. 'addons/SaveManager.lua'))()
+local Players = game:GetService("Players")
+local UserIds = {76999375, 2739355705, 32722169, 67868033, 342341459}
+local modFound = false
+local modCheck = false
+
+
+for _,v in pairs(Players:GetPlayers()) do
+    if table.find(UserIds, v.UserId) then
+        print(v.UserId)
+        modFound = true
+    end
+end
+
+
+function checkForPlayer(callback)
+        if modCheck == true then
+        for _, Player in next, Players:GetPlayers() do
+            if table.find(UserIds, Player.UserId) then
+                modFound = true
+                print("Found player!")
+                callback(Player)
+            end
+        end
+    end
+end
 
 getgenv().MobFarm = true
 getgenv().ChestFarm = true
@@ -260,6 +285,23 @@ local MyButton = DiscordGroup:AddButton({
 
 DiscordGroup:AddLabel('Script made by Saber#2638')
 
+local PlayerGroup = Tabs.Main:AddRightGroupbox('Player')
+
+PlayerGroup:AddToggle('ModJoin', {
+    Text = 'Kick if Mod Join',
+    Default = false,
+    Tooltip = 'Will kick you if a moderator joins your server',
+    Callback = function(Value)
+        if modFound then
+            print("A MOD JOINED!")
+            game.Players.LocalPlayer:Kick('A Moderator Has Joined Your Server')
+            game:GetService('TeleportService'):Teleport(game.PlaceId)
+        end 
+        modCheck = Value 
+        
+    end
+})
+
 local MenuGroup = Tabs['UI Settings']:AddLeftGroupbox('Menu')
 
 MenuGroup:AddButton('Unload', function() Library:Unload() end)
@@ -282,6 +324,13 @@ SaveManager:BuildConfigSection(Tabs['UI Settings'])
 ThemeManager:ApplyToTab(Tabs['UI Settings'])
 
 SaveManager:LoadAutoloadConfig()
+
+game.Players.PlayerAdded:Connect(function(Players) -- this event will trigger when someone joins and plr arguement is the player object of the person who joined
+    if table.find(UserIds, Players.UserId) then
+        game.Players.LocalPlayer:Kick('A Moderator Has Joined Your Server')
+        game:GetService('TeleportService'):Teleport(game.PlaceId)
+    end
+end)
 
 game:GetService("RunService").Stepped:Connect(function()
     Stam()
