@@ -124,7 +124,7 @@ local function chestfarm()
                 if x.Name == "ChestInteract" then
                     if chestfarmAuto == true then
                         game.Players.LocalPlayer.Character:PivotTo(x.Parent.Baixo.Detalhe:GetPivot())
-                        task.wait(1.5)
+                        task.wait(2)
                         fireproximityprompt(x)
                     else
                         break
